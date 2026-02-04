@@ -32,6 +32,25 @@ cc-profiler claude
 # Open report.html in a browser to view results
 ```
 
+## Examples
+
+```bash
+# Basic profiling
+npx cc-profiler claude
+
+# With correlation (extracts tool/token metadata)
+npx cc-profiler --correlate-jsonl claude
+
+# Fixed 5-minute session
+npx cc-profiler --duration 5m claude
+
+# Pass flags to Claude (note the --)
+npx cc-profiler -- claude --resume abc123
+
+# Both cc-profiler and Claude flags
+npx cc-profiler --correlate-jsonl --duration 10m -- claude --dangerously-skip-permissions
+```
+
 ## CLI Reference
 
 ```
