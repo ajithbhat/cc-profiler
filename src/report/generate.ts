@@ -76,6 +76,13 @@ export async function generateReportHtml(session: SessionData): Promise<string> 
             (session.jsonl.samples[0]?.sizeBytes ?? 0),
         }
       : undefined,
+    jsonlCorrelation: session.jsonl?.correlation
+      ? {
+          mode: session.jsonl.correlation.mode,
+          parsedLines: session.jsonl.correlation.parsedLines,
+          parseErrors: session.jsonl.correlation.parseErrors,
+        }
+      : undefined,
     turnT1Raw: { avg: mean(turnT1), p95: percentile(turnT1, 95) },
     turnT2Raw: { avg: mean(turnT2), p95: percentile(turnT2, 95) },
     turnT1Adjusted: { avg: mean(turnT1Adj), p95: percentile(turnT1Adj, 95) },
@@ -146,6 +153,45 @@ export async function generateReportHtml(session: SessionData): Promise<string> 
           <tr><th>GC/stall inference</th><td>Not implemented in v1 (planned via correlation heuristics)</td></tr>
         </table>
       </div>
+      ${
+        session.jsonl?.correlation
+          ? `<div class="card">
+        <h2>JSONL Correlation (metadata only)</h2>
+        <div class="muted">Mode: ${escapeHtml(session.jsonl.correlation.mode)} • Parsed lines: ${escapeHtml(
+              String(session.jsonl.correlation.parsedLines),
+            )} • Errors: ${escapeHtml(String(session.jsonl.correlation.parseErrors))}</div>
+        ${
+          session.jsonl.correlation.notes?.length
+            ? `<div class="muted" style="margin-top:8px">${escapeHtml(session.jsonl.correlation.notes.join(" • "))}</div>`
+            : ""
+        }
+        <div style="margin-top:10px; overflow:auto">
+          <table>
+            <tr>
+              <th>Turn</th>
+              <th>Records</th>
+              <th>Bytes</th>
+              <th>Tool uses</th>
+              <th>Tool names</th>
+              <th>Tokens (in/out)</th>
+            </tr>
+            ${session.jsonl.correlation.perTurn
+              .map(
+                (t) => `<tr>
+              <td>${escapeHtml(String(t.turnIndex))}</td>
+              <td>${escapeHtml(String(t.recordCount))}</td>
+              <td>${escapeHtml(String(t.recordBytes))}</td>
+              <td>${escapeHtml(String(t.toolUseCount))}</td>
+              <td>${escapeHtml((t.toolUseNames || []).join(", "))}</td>
+              <td>${escapeHtml(String(t.inputTokenCount ?? ""))}/${escapeHtml(String(t.outputTokenCount ?? ""))}</td>
+            </tr>`,
+              )
+              .join("")}
+          </table>
+        </div>
+      </div>`
+          : ""
+      }
       <div class="card">
         <h2>RSS + CPU over time</h2>
         <canvas id="chart-rss-cpu"></canvas>

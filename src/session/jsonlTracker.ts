@@ -93,6 +93,10 @@ export class JsonlTracker {
     return this.samples;
   }
 
+  async getActivePathUnsafe(): Promise<string | undefined> {
+    return await this.ensureActivePath();
+  }
+
   async recordOnTurn(turn: TurnEvent): Promise<void> {
     const p = await this.ensureActivePath();
     if (!p) return;

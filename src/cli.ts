@@ -30,12 +30,17 @@ function addRunOptions(cmd: Command): Command {
       String(DEFAULT_INTERACTION_TIMEOUT_MS),
     )
     .option("--disable-mcps", "Run with MCP servers disabled (settings overlay; does not modify your real settings)")
+    .option(
+      "--correlate-jsonl",
+      "Parse Claude session JSONL to extract metadata (no content stored); best-effort correlation to turn index",
+    )
     .option("--unsafe-store-paths", "Store plaintext paths (cwd/output/settings) in data.json (NOT shareable)")
     .option("--unsafe-store-command", "Store plaintext command + args in data.json (NOT shareable)")
     .option("--unsafe-store-errors", "Store full error strings in warnings (may include paths)");
 }
 
-async function runAction(command: string[], options: any) {
+async function runAction(command: string[], _options: any, cmdObj: Command) {
+  const options = cmdObj.optsWithGlobals();
   const cmd = command.length ? command : ["claude"];
   if (options.binary && isClaudeCommand(cmd[0])) {
     cmd[0] = path.resolve(options.binary);
@@ -59,6 +64,7 @@ async function runAction(command: string[], options: any) {
     interactionTimeoutMs,
     turnHotkey: options.turnHotkey === "off" ? "off" : "alt+t",
     disableMcps: Boolean(options.disableMcps),
+    correlateJsonl: Boolean(options.correlateJsonl),
     unsafeStorePaths: Boolean(options.unsafeStorePaths),
     unsafeStoreCommand: Boolean(options.unsafeStoreCommand),
     unsafeStoreErrors: Boolean(options.unsafeStoreErrors),

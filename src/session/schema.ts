@@ -25,6 +25,7 @@ export interface SessionConfig {
   turnDetection: TurnDetectionMode;
   turnHotkey: "alt+t" | "off";
   disableMcps: boolean;
+  correlateJsonl: boolean;
   unsafe?: UnsafeSessionConfig;
 }
 
@@ -134,4 +135,23 @@ export interface JsonlTracking {
     tMs: number;
     sizeBytes: number;
   }>;
+  correlation?: JsonlCorrelation;
+}
+
+export interface JsonlCorrelation {
+  enabled: boolean;
+  mode: "timestamps" | "sequential" | "none";
+  parsedLines: number;
+  parsedBytes: number;
+  parseErrors: number;
+  perTurn: Array<{
+    turnIndex: number;
+    recordCount: number;
+    recordBytes: number;
+    toolUseCount: number;
+    toolUseNames: string[];
+    inputTokenCount?: number;
+    outputTokenCount?: number;
+  }>;
+  notes: string[];
 }

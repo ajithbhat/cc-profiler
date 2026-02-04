@@ -16,6 +16,7 @@ import { defaultSessionDirName } from "../util/paths";
 import { clearActiveSession, writeActiveSession } from "./activeSession";
 import { startMarkerWatcher } from "./markerWatcher";
 import { JsonlTracker } from "./jsonlTracker";
+import { correlateJsonlToTurns } from "./jsonlCorrelate";
 import type { SessionConfig, SessionData } from "./schema";
 
 export interface RunSessionOptions {
@@ -29,6 +30,7 @@ export interface RunSessionOptions {
   turnHotkey: "alt+t" | "off";
   durationMs?: number;
   disableMcps: boolean;
+  correlateJsonl: boolean;
   unsafeStorePaths: boolean;
   unsafeStoreCommand: boolean;
   unsafeStoreErrors: boolean;
@@ -154,6 +156,48 @@ export async function runSession(opts: RunSessionOptions): Promise<RunSessionRes
       };
     }
 
+    if (opts.correlateJsonl) {
+      if (!jsonlTracker) {
+        session.jsonl = session.jsonl ?? { samples: [] };
+        session.jsonl.correlation = {
+          enabled: true,
+          mode: "none",
+          parsedLines: 0,
+          parsedBytes: 0,
+          parseErrors: 0,
+          perTurn: [],
+          notes: ["JSONL correlation is only supported for Claude sessions."],
+        };
+      } else {
+        try {
+          const jsonlPath = await jsonlTracker.getActivePathUnsafe();
+          if (!jsonlPath) {
+            session.jsonl = session.jsonl ?? { samples: [] };
+            session.jsonl.correlation = {
+              enabled: true,
+              mode: "none",
+              parsedLines: 0,
+              parsedBytes: 0,
+              parseErrors: 0,
+              perTurn: [],
+              notes: ["Could not determine JSONL path to parse (use --jsonl-path)."],
+            };
+          } else {
+            const endedAtMsEpoch = Date.parse(session.endedAtIso);
+            session.jsonl = session.jsonl ?? { samples: [] };
+            session.jsonl.correlation = await correlateJsonlToTurns({
+              jsonlPath,
+              startedAtMsEpoch: clock.startedAtMsEpoch,
+              endedAtMsEpoch: Number.isFinite(endedAtMsEpoch) ? endedAtMsEpoch : undefined,
+              turns: session.turns,
+            });
+          }
+        } catch (err) {
+          warn("Failed to correlate JSONL", err);
+        }
+      }
+    }
+
     let html: string | undefined;
     try {
       html = await generateReportHtml(session);
@@ -202,6 +246,7 @@ export async function runSession(opts: RunSessionOptions): Promise<RunSessionRes
       turnDetection: "enter",
       turnHotkey: opts.turnHotkey,
       disableMcps: opts.disableMcps,
+      correlateJsonl: opts.correlateJsonl,
     };
 
     if (opts.unsafeStoreCommand || opts.unsafeStorePaths) {

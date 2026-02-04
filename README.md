@@ -46,6 +46,7 @@ cc-profiler [options] [--] <command...>
 | `--duration <time>` | None | Auto-stop after duration (e.g., `5m`, `30s`) |
 | `--binary <path>` | — | Path to claude binary (overrides first arg) |
 | `--disable-mcps` | false | Run with MCP servers disabled (A/B testing) |
+| `--correlate-jsonl` | false | Parse Claude session JSONL to extract metadata (tool names/counts, record sizes, token counts if present) |
 | `--turn-hotkey <spec>` | `alt+t` | Manual turn marker hotkey (`alt+t` or `off`) |
 | `--burst-idle-ms <ms>` | 30 | Idle gap to end output burst detection |
 | `--sample-interval-ms <ms>` | 100 | Process sampling interval |
@@ -126,6 +127,9 @@ By default, cc-profiler produces **shareable** output:
 - **Redacted errors** — Only error class/code, not full messages
 - **Names only** — MCP server and plugin names (no URLs or secrets)
 
+Optional metadata correlation:
+- `--correlate-jsonl` reads the JSONL **locally** and stores **metadata only** in `data.json` (no plaintext prompts/responses).
+
 Use `--unsafe-*` flags only for local debugging.
 
 ## A/B Testing
@@ -141,6 +145,10 @@ cc-profiler --output ./no-mcps --disable-mcps claude
 ```
 
 The `--disable-mcps` flag uses a temporary settings overlay. Your real `~/.claude/settings.json` is never modified.
+
+## Testing / Validation
+
+See `docs/VALIDATION_EXPERIMENT.md` for a reproducible validation protocol and smoke tests.
 
 ## Contributing
 

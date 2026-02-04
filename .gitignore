@@ -10,6 +10,7 @@ npm-debug.log*
 
 # Session data (contains profiling results - never commit)
 cc-profiler-session-*/
+_tmp_session_out_*/
 profiles/
 
 # Private docs (not public yet)

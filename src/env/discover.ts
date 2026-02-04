@@ -40,7 +40,9 @@ export async function discoverEnvironment(opts: DiscoverEnvironmentOptions): Pro
   const cpuModel = cpus?.[0]?.model;
   const cpuCores = cpus?.length;
 
-  const parentProcessName = await getParentProcessName(process.ppid);
+  const parentProcessNameRaw = await getParentProcessName(process.ppid);
+  const parentProcessName =
+    opts.unsafeStorePaths || !parentProcessNameRaw ? parentProcessNameRaw : path.basename(parentProcessNameRaw);
 
   const envInfo: EnvironmentInfo = {
     platform: process.platform,
