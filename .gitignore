@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Session data (contains profiling results - never commit)
+cc-profiler-session-*/
+profiles/
+
+# Private docs (not public yet)
+docs/
+CLAUDE.md
+agents.md
+*.private.md
+.claude/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Environment files (if any)
+.env
+.env.*
+*.pem
+*.key
+
+# Test coverage
+coverage/
+
+# Temporary files
+*.tmp
+.cc-profiler/
