@@ -165,10 +165,6 @@ cc-profiler --output ./no-mcps --disable-mcps claude
 
 The `--disable-mcps` flag uses a temporary settings overlay. Your real `~/.claude/settings.json` is never modified.
 
-## Testing / Validation
-
-See `docs/VALIDATION_EXPERIMENT.md` for a reproducible validation protocol and smoke tests.
-
 ## Contributing
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for development setup and guidelines.

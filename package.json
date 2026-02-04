@@ -1,6 +1,6 @@
 {
   "name": "cc-profiler",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "External performance profiling harness for Claude Code TUI",
   "license": "MIT",
   "author": "Ajith Bhat",
