@@ -52,6 +52,18 @@ export interface RunSessionResult {
 
 export async function runSession(opts: RunSessionOptions): Promise<RunSessionResult> {
   if (!opts.command[0]) throw new Error("No command specified");
+  if (!Number.isFinite(opts.burstIdleMs) || opts.burstIdleMs < 0) {
+    throw new Error(`Invalid burstIdleMs: ${opts.burstIdleMs}`);
+  }
+  if (!Number.isFinite(opts.sampleIntervalMs) || opts.sampleIntervalMs <= 0) {
+    throw new Error(`Invalid sampleIntervalMs: ${opts.sampleIntervalMs}`);
+  }
+  if (!Number.isFinite(opts.interactionTimeoutMs) || opts.interactionTimeoutMs < 0) {
+    throw new Error(`Invalid interactionTimeoutMs: ${opts.interactionTimeoutMs}`);
+  }
+  if (typeof opts.durationMs === "number" && !Number.isFinite(opts.durationMs)) {
+    throw new Error(`Invalid durationMs: ${opts.durationMs}`);
+  }
 
   const clock = createMonotonicClock();
   const startedAtIso = new Date(clock.startedAtMsEpoch).toISOString();
@@ -272,7 +284,12 @@ export async function runSession(opts: RunSessionOptions): Promise<RunSessionRes
     };
 
     jsonlTracker = isClaudeCommand(opts.command[0])
-      ? new JsonlTracker({ startedAtMsEpoch: clock.startedAtMsEpoch, overridePath: opts.jsonlPath })
+      ? new JsonlTracker({
+          startedAtMsEpoch: clock.startedAtMsEpoch,
+          overridePath: opts.jsonlPath,
+          cwd: resolvedCwd,
+          allowReadForSelection: opts.correlateJsonl,
+        })
       : undefined;
 
     try {
