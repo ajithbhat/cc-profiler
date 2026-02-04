@@ -198,16 +198,25 @@ function extractEpochMs(rec: unknown): number | undefined {
 function extractRole(rec: unknown): "user" | "assistant" | undefined {
   if (!isObject(rec)) return undefined;
 
+  // Claude Code uses "type" field for role
+  const typeField = rec["type"];
+  if (typeof typeField === "string") {
+    const r = typeField.toLowerCase();
+    if (r === "user" || r === "assistant") return r as "user" | "assistant";
+  }
+
+  // Fallback: check "role" field directly
   const direct = rec["role"];
   if (typeof direct === "string") {
     const r = direct.toLowerCase();
-    if (r === "user" || r === "assistant") return r as any;
+    if (r === "user" || r === "assistant") return r as "user" | "assistant";
   }
 
+  // Fallback: check nested message.role
   const msg = rec["message"];
   if (isObject(msg) && typeof msg["role"] === "string") {
     const r = (msg["role"] as string).toLowerCase();
-    if (r === "user" || r === "assistant") return r as any;
+    if (r === "user" || r === "assistant") return r as "user" | "assistant";
   }
 
   return undefined;
